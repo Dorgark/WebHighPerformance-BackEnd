@@ -1,1 +1,1 @@
-Sou Gamer
+Não sou mais Gamer
