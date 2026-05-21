@@ -1,1 +1,0 @@
-Não sou mais Gamer
