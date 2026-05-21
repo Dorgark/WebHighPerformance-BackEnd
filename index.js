@@ -25,6 +25,13 @@ connectDB()
 
 //ROTAS DE POST E GET ABAIXO
 
-app.listen(port,()=>{
-    console.log(`servidor aberto na porta ${port}/ http://localhost:3000`)
-})
+// Suas rotas e middlewares aqui (ex: app.get...)
+
+if (!process.env.VERCEL) {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Servidor local rodando na porta ${PORT} http://localhost:${PORT}`);
+  });
+}
+
+export default app
