@@ -8,6 +8,7 @@ dotenv.config()
 
 const app = express()
 const port = 3000
+app.use(express.json())
 
 app.use(cors())
 app.use(express.json())
@@ -22,10 +23,25 @@ const connectDB = async ()=>{
     }
 }
 connectDB()
+app.post('/produtos', async (req, res) => {
+  try{
+    const novoProduto = await Produto.create(req.body);
+    res.json(novoProduto);
+  } catch (error) {
+    res.send({error: error})
+  }
 
-//ROTAS DE POST E GET ABAIXO
+})
 
-// Suas rotas e middlewares aqui (ex: app.get...)
+app.get('/produtos', async (req, res) => {
+try{
+  const novoProduto = await Produto.find();
+  res.json(produtos);
+} catch (error){
+  res.json({error: error});
+}
+
+})
 
 if (!process.env.VERCEL) {
   const PORT = process.env.PORT || 3000;
