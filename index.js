@@ -23,6 +23,7 @@ const connectDB = async ()=>{
     }
 }
 connectDB()
+
 app.post('/produtos', async (req, res) => {
   try{
     const novoProduto = await Produto.create(req.body);
@@ -36,7 +37,7 @@ app.post('/produtos', async (req, res) => {
 app.get('/produtos', async (req, res) => {
 try{
   const novoProduto = await Produto.find();
-  res.json(produtos);
+  res.json(novoProduto);
 } catch (error){
   res.json({error: error});
 }
