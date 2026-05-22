@@ -4,12 +4,10 @@ import dotenv from "dotenv"
 import cors from "cors"
 import Produto from "./schemas/Produto.js"
 
-dotenv.config()
-
 const app = express()
 const port = 3000
-app.use(express.json())
 
+dotenv.config()
 app.use(cors())
 app.use(express.json())
 
