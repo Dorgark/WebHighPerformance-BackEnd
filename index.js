@@ -2,7 +2,8 @@ import express from "express"
 import mongoose from "mongoose"
 import dotenv from "dotenv"
 import cors from "cors"
-import Produto from "./schemas/Produto.js"
+import Product from "./schemas/Product.js"
+import authRoutes from "./routes/auth.js"
 
 const app = express()
 const port = 3000
@@ -22,20 +23,23 @@ const connectDB = async ()=>{
 }
 connectDB()
 
-app.post('/produtos', async (req, res) => {
+app.use("/api/auth", authRoutes)
+
+
+app.post('/products', async (req, res) => {
   try{
-    const novoProduto = await Produto.create(req.body);
-    res.json(novoProduto);
+    const newProduct = await Product.create(req.body);
+    res.json(newProduct);
   } catch (error) {
     res.send({error: error})
   }
 
 })
 
-app.get('/produtos', async (req, res) => {
+app.get('/products', async (req, res) => {
 try{
-  const novoProduto = await Produto.find();
-  res.json(novoProduto);
+  const products = await Product.find();
+  res.json(products);
 } catch (error){
   res.json({error: error});
 }
