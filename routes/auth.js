@@ -8,7 +8,7 @@ const router = express.Router()
 
 router.post("/register", async (req,res)=> {
     try {
-        const{ name, email, password, number} = await req.body
+        const { name, email, password, number } = req.body
 
         const isEmail = validator.isEmail(email)
         if(!isEmail) {
@@ -35,12 +35,11 @@ router.post("/register", async (req,res)=> {
             return res.status(400).json({error: "Senha tem que ter 6 ou mais caracteres"})
         }
 
-        const rawPassword = await password
-        const hashPassword = await bcrypt.hash(rawPassword, 10)
+        const hashPassword = await bcrypt.hash(password, 10)
 
-        User.create({name, email, password: hashPassword, number})
+        await User.create({name, email, password: hashPassword, number})
 
-        res.status(201).json({resposta: "Usuario resgistrado com sucesso"})
+        res.status(201).json({resposta: "Usuario registrado com sucesso"})
     }
     catch(error){
         res.status(500).send(error)
@@ -49,7 +48,7 @@ router.post("/register", async (req,res)=> {
 
 router.post("/login", async (req, res)=>{
     try {
-        const {email, password} = await req.body
+        const {email, password} = req.body
         const isEmailValid = validator.isEmail(email)
         const isPasswordEmpty = validator.isEmpty(password)
         if (!isEmailValid || isPasswordEmpty){
@@ -57,6 +56,10 @@ router.post("/login", async (req, res)=>{
         }
         
         const dataDb = await User.findOne({email: email})
+        if (!dataDb) {
+            return res.status(401).json({error: "email ou senha inválidos"})
+        }
+        
         const passwordDb = dataDb.password
         
         const isPasswordValid = await bcrypt.compare(password, passwordDb)
