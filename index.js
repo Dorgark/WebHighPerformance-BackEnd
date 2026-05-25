@@ -4,6 +4,7 @@ import dotenv from "dotenv"
 import cors from "cors"
 import Product from "./schemas/Product.js"
 import authRoutes from "./routes/auth.js"
+import productsRoutes from "./routes/products.js"
 
 const app = express()
 const port = 3000
@@ -24,27 +25,7 @@ const connectDB = async ()=>{
 connectDB()
 
 app.use("/api/auth", authRoutes)
-
-
-app.post('/products', async (req, res) => {
-  try{
-    const newProduct = await Product.create(req.body);
-    res.json(newProduct);
-  } catch (error) {
-    res.send({error: error})
-  }
-
-})
-
-app.get('/products', async (req, res) => {
-try{
-  const products = await Product.find();
-  res.json(products);
-} catch (error){
-  res.json({error: error});
-}
-
-})
+app.use("/api/products", productsRoutes)
 
 if (!process.env.VERCEL) {
   const PORT = process.env.PORT || 3000;
