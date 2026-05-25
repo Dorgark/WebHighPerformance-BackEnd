@@ -4,22 +4,22 @@ import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router()
 
-router.post('/products',authMiddleware, async (req, res) => {
+router.post('/',authMiddleware, async (req, res) => {
   try{
     const newProduct = await Product.create(req.body);
-    res.json(newProduct);
+    res.status(201).json(newProduct);
   } catch (error) {
-    res.json({error: error})
+    res.status(500).json({ error: "Erro ao criar produto", error});
   }
 
 })
 
-router.get('/products', async (req, res) => {
+router.get('/', async (req, res) => {
     try{
         const products = await Product.find();
-        res.json(products);
+        res.status(200).json(products);
     } catch (error){
-        res.json({error: error});
+        res.status(500).json({ error: "Erro ao buscar produtos", error});
     }
 })
 
