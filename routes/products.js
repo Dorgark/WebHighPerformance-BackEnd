@@ -1,9 +1,10 @@
 import express from "express"
 import Product from "../schemas/Product.js";
+import authMiddleware from "../middleware/authMiddleware.js";
 
 const router = express.Router()
 
-router.post('/products', async (req, res) => {
+router.post('/products',authMiddleware, async (req, res) => {
   try{
     const newProduct = await Product.create(req.body);
     res.json(newProduct);
