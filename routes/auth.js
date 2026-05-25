@@ -1,14 +1,10 @@
 import express from "express"
 import bcrypt from "bcrypt"
-import mongoose from "mongoose"
 import validator from "validator"
-import dotenv from "dotenv"
 import jwt from "jsonwebtoken"
 import User from "../schemas/User.js"
 
 const router = express.Router()
-const app = express()
-dotenv.config()
 
 router.post("/register", async (req,res)=> {
     try {
