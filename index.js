@@ -7,7 +7,6 @@ import authRoutes from "./routes/auth.js"
 import productsRoutes from "./routes/products.js"
 
 const app = express()
-const port = 3000
 
 dotenv.config()
 app.use(cors())
@@ -27,12 +26,6 @@ connectDB()
 app.use("/api/auth", authRoutes)
 app.use("/api/products", productsRoutes)
 
-if (!process.env.VERCEL) {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`Servidor local rodando na porta ${PORT} http://localhost:${PORT}`);
-  });
-}
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
