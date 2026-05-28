@@ -14,13 +14,13 @@ app.use(cors())
 app.use(express.json())
 
 const connectDB = async ()=>{
-    try {
-        await mongoose.connect(process.env.MONGO_KEY)
-        console.log("conectado ao MongoDB com sucesso")
-    }
-    catch(error){
-        console.log("erro ao se conectar ao MongoDB", error)
-    }
+  try {
+    await mongoose.connect(process.env.MONGO_KEY)
+    console.log("conectado ao MongoDB com sucesso")
+}
+  catch(error){
+    console.log("erro ao se conectar ao MongoDB", error)
+  }
 }
 connectDB()
 
@@ -33,5 +33,9 @@ if (!process.env.VERCEL) {
     console.log(`Servidor local rodando na porta ${PORT} http://localhost:${PORT}`);
   });
 }
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
 
 export default app
