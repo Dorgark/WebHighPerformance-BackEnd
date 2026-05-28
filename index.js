@@ -45,6 +45,7 @@ try{
 
 })
 
+<<<<<<< Updated upstream
 if (!process.env.VERCEL) {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
