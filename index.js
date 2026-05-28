@@ -6,7 +6,6 @@ import Product from "./schemas/Product.js"
 import authRoutes from "./routes/auth.js"
 
 const app = express()
-const port = 3000
 
 dotenv.config()
 app.use(cors())
@@ -52,5 +51,11 @@ if (!process.env.VERCEL) {
     console.log(`Servidor local rodando na porta ${PORT} http://localhost:${PORT}`);
   });
 }
+=======
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor local rodando na porta ${PORT} http://localhost:${PORT}`);
+});
+>>>>>>> Stashed changes
 
 export default app
