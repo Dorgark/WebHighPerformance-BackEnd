@@ -23,7 +23,7 @@ router.get('/', async (req, res) => {
   }
 })
 
-router.post('/',authMiddleware, async (req, res)=> {
+router.put('/',authMiddleware, async (req, res)=> {
 
   try{
 
@@ -45,7 +45,7 @@ router.post('/',authMiddleware, async (req, res)=> {
 router.delete('/',authMiddleware, async (req, res)=> {
 
   try{
-    await Product.findByIdAndDelete(req.params.id)
+    await Product.findByIdAndDelete(req.userId)
     return res.status(200).json({
       message: "Produto deletado"
     })
