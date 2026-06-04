@@ -23,38 +23,24 @@ router.get('/', async (req, res) => {
   }
 })
 
-router.put('/',authMiddleware, async (req, res)=> {
+router.put('/:id',authMiddleware, async (req, res)=> {
 
   try{
-
-    const updatedProduct = await Product.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      {new: true}
-    )
-
+    const updatedProduct = await Product.findByIdAndUpdate(req.params.id, req.body,{new: true})
     return res.status(200).json(updatedProduct)
-
   } catch (error) {
-    returnres.status(500).json({
-      error: "Erro ao atualizar produto"
-    })
+    return res.status(500).json({error: "Erro ao atualizar produto"})
   }
 })
 
-router.delete('/',authMiddleware, async (req, res)=> {
+router.delete('/delete/:id',authMiddleware, async (req, res)=> {
 
   try{
-    await Product.findByIdAndDelete(req.userId)
-    return res.status(200).json({
-      message: "Produto deletado"
-    })
-  
+    await Product.findByIdAndDelete(req.params.id)
+    return res.status(200).json({message: "Produto deletado"})
+
   } catch (error) {
-    
-    return res.status(500).json ({
-      error: "Erro ao deletar produto"
-    })
+    return res.status(500).json ({error: "Erro ao deletar produto"})
   }
 })
 export default router
