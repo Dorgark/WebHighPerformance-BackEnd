@@ -28,8 +28,8 @@ router.post('/',authMiddleware, upload.single('image'), async (req, res) => {
     const productData = req.body
 
     if (req.file) {
-      productData.imageUrl = req.file.secure_url;
-      productData.imagePublicId = req.file.filename;
+      productData.imageUrl = req.file.secure_url || req.file.path || req.file.url;
+      productData.imagePublicId = req.file.filename || req.file.public_id;
     } else {
       return res.status(400).json({ error: "A imagem do produto é obrigatória" });
     }
@@ -63,11 +63,12 @@ router.put('/:id', authMiddleware, upload.single('image'), async (req, res)=> {
       }
 
       if (produtoAntigo.imagePublicId) {
-        await cloudinary.v2.uploader.destroy(produtoAntigo.imagePublicId);
+        const publicIdToDestroy = produtoAntigo.imagePublicId.replace(/\.[^/.]+$/, ""); // Garante que a extensão (.jpg, .png) seja removida
+        await cloudinary.v2.uploader.destroy(publicIdToDestroy, { invalidate: true });
       }
 
       productData.imageUrl = req.file.secure_url || req.file.url || req.file.path;
-      productData.imagePublicId = req.file.filename;
+      productData.imagePublicId = req.file.filename || req.file.public_id;
     }
 
     const updatedProduct = await Product.findByIdAndUpdate(
@@ -93,7 +94,8 @@ router.delete('/:id',authMiddleware, async (req, res)=> {
     }
 
     if (produto.imagePublicId) {
-      await cloudinary.v2.uploader.destroy(produto.imagePublicId);
+      const publicIdToDestroy = produto.imagePublicId.replace(/\.[^/.]+$/, ""); // Garante que a extensão (.jpg, .png) seja removida
+      await cloudinary.v2.uploader.destroy(publicIdToDestroy, { invalidate: true });
     }
 
     await Product.findByIdAndDelete(req.params.id);
