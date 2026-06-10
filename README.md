@@ -1,6 +1,125 @@
-# Web High Performance - BackEnd
+# Web High Performance - BackEnd (API Reference)
 
 Este é o repositório do back-end para o sistema Web High Performance. A API é construída com Node.js, Express, MongoDB e JWT para autenticação.
+
+## 🔗 Informações Base para Consumo (Front-End)
+- **URL Base Local:** `http://localhost:3000`
+- **URL Base Produção:** `https://webhighperformance-backend.onrender.com/`
+- Todas as rotas de criação, edição e exclusão (além das de usuário) requerem um Header de Autenticação:
+  - `Authorization: Bearer <seu_token_jwt>`
+
+---
+
+## 📦 Produtos (`/api/products`)
+
+### 1. Criar um novo Produto
+- **Endpoint:** `POST /api/products/`
+- **Descrição:** Cadastra um novo produto no banco de dados, fazendo o upload automático da imagem para o Cloudinary. 
+- **Autenticação Obrigatória:** Sim (`Authorization: Bearer <token>`)
+- **Formato da Requisição:** `multipart/form-data` (obrigatório devido ao upload de imagem). O campo da imagem deve se chamar **`image`**.
+
+**Corpo da Requisição (Form Data):**
+```text
+name: "Teclado Mecânico"
+price: 250.50
+description: "Teclado mecânico switch blue"
+type: "Periféricos"
+amount: 15
+image: [Arquivo da imagem] (Campo do tipo File)
+```
+
+**Respostas Possíveis:**
+- `201 Created` - Produto criado com sucesso:
+  ```json
+  {
+    "_id": "64c9f1...",
+    "name": "Teclado Mecânico",
+    "price": 250.5,
+    "description": "Teclado mecânico switch blue",
+    "type": "Periféricos",
+    "amount": 15,
+    "imageUrl": "https://res.cloudinary.com/demo/image/upload/v1234567890/lojinha_produtos/teclado.jpg",
+    "imagePublicId": "lojinha_produtos/teclado",
+    "__v": 0
+  }
+  ```
+- `400 Bad Request` - A imagem do produto é obrigatória.
+- `401 Unauthorized` - Token não fornecido ou inválido.
+- `500 Internal Server Error` - Erro ao criar o produto.
+
+---
+
+### 2. Listar todos os Produtos
+- **Endpoint:** `GET /api/products/`
+- **Descrição:** Retorna a lista com todos os produtos cadastrados no sistema, incluindo os links das imagens prontas para exibição. 
+- **Autenticação:** Não requerida (Acesso público).
+
+**Respostas Possíveis:**
+- `200 OK` - Retorna um Array (lista) de produtos:
+  ```json
+  [
+    {
+      "_id": "64c9f1...",
+      "name": "Teclado Mecânico",
+      "price": 250.5,
+      "description": "Teclado mecânico switch blue",
+      "type": "Periféricos",
+      "amount": 15,
+      "imageUrl": "https://res.cloudinary.com/.../lojinha_produtos/teclado.jpg",
+      "imagePublicId": "lojinha_produtos/teclado"
+    },
+    {
+      "_id": "64c9f2...",
+      "name": "Mouse Gamer",
+      "price": 120.00,
+      "description": "Mouse 10000 DPI",
+      "type": "Periféricos",
+      "amount": 8,
+      "imageUrl": "https://res.cloudinary.com/.../lojinha_produtos/mouse.jpg",
+      "imagePublicId": "lojinha_produtos/mouse"
+    }
+  ]
+  ```
+- `500 Internal Server Error` - Erro ao buscar os produtos.
+
+---
+
+### 3. Atualizar Produto
+- **Endpoint:** `PUT /api/products/:id`
+- **Descrição:** Atualiza as informações de um produto específico. Se uma nova imagem for enviada no campo `image`, a imagem antiga será automaticamente apagada do Cloudinary e substituída.
+- **Autenticação Obrigatória:** Sim (`Authorization: Bearer <token>`)
+- **Formato da Requisição:** `multipart/form-data` (se for enviar nova imagem) ou `application/json` (se for atualizar apenas os textos).
+
+**Corpo da Requisição (Exemplo atualizando texto e imagem via Form Data):**
+```text
+price: 230.00
+amount: 10
+image: [Novo arquivo de imagem - Opcional]
+```
+
+**Respostas Possíveis:**
+- `200 OK` - Produto atualizado com sucesso (retorna o objeto completo atualizado).
+- `401 Unauthorized` - Token não fornecido ou inválido.
+- `404 Not Found` - Produto não encontrado.
+- `500 Internal Server Error` - Erro ao atualizar o produto.
+
+---
+
+### 4. Deletar Produto
+- **Endpoint:** `DELETE /api/products/:id`
+- **Descrição:** Remove um produto específico através do ID. A imagem associada também será deletada permanentemente do Cloudinary.
+- **Autenticação Obrigatória:** Sim (`Authorization: Bearer <token>`)
+
+**Respostas Possíveis:**
+- `200 OK` - Sucesso:
+  ```json
+  { "message": "Produto deletado" }
+  ```
+- `401 Unauthorized` - Token não fornecido ou inválido.
+- `404 Not Found` - Produto não encontrado no banco de dados.
+- `500 Internal Server Error` - Erro ao deletar produto.
+
+---
 
 ## 🔐 Autenticação e Usuário (`/api/auth`)
 
@@ -18,29 +137,15 @@ Este é o repositório do back-end para o sistema Web High Performance. A API é
 }
 ```
 
-**Regras de Validação:**
-- **name**: Não pode estar vazio.
-- **email**: Deve ser um formato de e-mail válido. Não pode já existir no sistema.
-- **password**: Deve ter no mínimo 6 caracteres.
-- **number**: Deve ser um formato de número de telefone/celular válido (padrão Brasil pt-BR).
-
 **Respostas Possíveis:**
-- `201 Created` - Sucesso:
-  ```json
-  { "resposta": "Usuario registrado com sucesso" }
-  ```
-- `400 Bad Request` - Falha na validação dos dados:
-  ```json
-  { "error": "Formato de email inválido" }
-  ```
-  *(e outras mensagens específicas de validação, ex: email em uso, número inválido, etc)*
-- `500 Internal Server Error` - Erro de processamento no servidor/banco de dados.
+- `201 Created` - `{ "resposta": "Usuario registrado com sucesso" }`
+- `400 Bad Request` - Falha na validação (`{ "error": "Formato de email inválido" }`)
 
 ---
 
 ### 2. Autenticar (Fazer Login)
 - **Endpoint:** `POST /api/auth/login`
-- **Descrição:** Autentica um usuário existente e retorna um token de acesso (JWT).
+- **Descrição:** Autentica o usuário e retorna o token de acesso.
 
 **Corpo da Requisição (JSON):**
 ```json
@@ -51,147 +156,56 @@ Este é o repositório do back-end para o sistema Web High Performance. A API é
 ```
 
 **Respostas Possíveis:**
-- `200 OK` - Sucesso:
-  ```json
-  { "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..." }
-  ```
-- `400 Bad Request` - Campos não enviados ou formato de e-mail inválido.
-- `401 Unauthorized` - Credenciais erradas (e-mail não cadastrado ou senha incorreta).
-- `500 Internal Server Error` - Erro interno.
+- `200 OK` - `{ "token": "eyJhbGciOiJIUzI1NiIs..." }`
+- `401 Unauthorized` - Credenciais incorretas.
 
 ---
 
 ### 3. Editar Usuário
 - **Endpoint:** `PATCH /api/auth/edit`
-- **Descrição:** Atualiza as informações do usuário autenticado. 
 - **Autenticação Obrigatória:** Sim (`Authorization: Bearer <token>`)
 
-**Corpo da Requisição (JSON) - Todos os campos são opcionais:**
+**Corpo da Requisição (JSON) - Opcional:**
 ```json
 {
-  "name": "Novo Nome",
-  "email": "novo@email.com",
-  "password": "novasenha123",
-  "number": "11888888888"
+  "name": "Novo Nome"
 }
 ```
-
-**Respostas Possíveis:**
-- `200 OK` - Usuário atualizado com sucesso (retorna os dados atualizados).
-- `400 Bad Request` - Erro de validação em algum campo.
-- `401 Unauthorized` - Nome não pode ser vazio ou Token inválido.
-- `500 Internal Server Error` - Erro interno.
 
 ---
 
 ### 4. Deletar Usuário
 - **Endpoint:** `DELETE /api/auth/delete`
-- **Descrição:** Remove a conta do usuário autenticado.
 - **Autenticação Obrigatória:** Sim (`Authorization: Bearer <token>`)
-
-**Respostas Possíveis:**
-- `200 OK` - Retorna os dados do usuário deletado.
-- `401 Unauthorized` - Token não fornecido, inválido ou expirado.
-- `500 Internal Server Error` - Erro interno.
 
 ---
 
-## 📦 Produtos (`/api/products`)
+## 🛠 Para Desenvolvedores (Rodando a API Localmente)
 
-### 1. Criar um novo Produto
-- **Endpoint:** `POST /api/products/`
-- **Descrição:** Cadastra um novo produto no banco de dados. 
-- **Autenticação Obrigatória:** Sim (`Authorization: Bearer <token>`)
+### Pré-requisitos
+- Node.js instalado.
+- Conta no MongoDB Atlas (ou banco local).
+- Conta no Cloudinary para gerenciar as imagens.
 
-**Corpo da Requisição (JSON):**
-```json
-{
-  "name": "Teclado Mecânico",
-  "price": 250.50,
-  "description": "Teclado mecânico switch blue",
-  "type": "Periféricos",
-  "amount": 15
-}
+### Instalação
+
+```bash
+git clone https://github.com/seu-usuario/WebHighPerformance-BackEnd.git
+cd WebHighPerformance-BackEnd
+npm install
 ```
 
-**Respostas Possíveis:**
-- `201 Created` - Produto criado com sucesso:
-  ```json
-  {
-    "_id": "64c9f1...",
-    "name": "Teclado Mecânico",
-    "price": 250.5,
-    "description": "Teclado mecânico switch blue",
-    "type": "Periféricos",
-    "amount": 15,
-    "__v": 0
-  }
-  ```
-- `401 Unauthorized` / `403 Forbidden` - Token não fornecido, inválido ou expirado.
-- `500 Internal Server Error` - Erro ao criar o produto.
-
----
-
-### 2. Listar todos os Produtos
-- **Endpoint:** `GET /api/products/`
-- **Descrição:** Retorna a lista com todos os produtos cadastrados no sistema. 
-- **Autenticação:** Não requerida (Acesso público).
-
-**Respostas Possíveis:**
-- `200 OK` - Retorna um Array (lista) de produtos:
-  ```json
-  [
-    {
-      "_id": "64c9f1...",
-      "name": "Teclado Mecânico",
-      "price": 250.5,
-      "description": "Teclado mecânico switch blue",
-      "type": "Periféricos",
-      "amount": 15
-    },
-    {
-      "_id": "64c9f2...",
-      "name": "Mouse Gamer",
-      "price": 120.00,
-      "description": "Mouse 10000 DPI",
-      "type": "Periféricos",
-      "amount": 8
-    }
-  ]
-  ```
-- `500 Internal Server Error` - Erro ao buscar os produtos no banco de dados.
-
----
-
-### 3. Atualizar Produto
-- **Endpoint:** `PUT /api/products/:id`
-- **Descrição:** Atualiza as informações de um produto específico através do ID.
-- **Autenticação Obrigatória:** Sim (`Authorization: Bearer <token>`)
-
-**Corpo da Requisição (JSON) - Enviar apenas os campos que deseja alterar:**
-```json
-{
-  "price": 230.00,
-  "amount": 10
-}
+Crie o arquivo `.env`:
+```env
+PORT=3000
+MONGO_KEY=sua_string_de_conexao
+JWT_SECRET=sua_chave_secreta
+CLOUDINARY_CLOUD_NAME=seu_cloud_name
+CLOUDINARY_API_KEY=sua_api_key
+CLOUDINARY_API_SECRET=sua_api_secret
 ```
 
-**Respostas Possíveis:**
-- `200 OK` - Produto atualizado com sucesso. Retorna o produto com os dados atualizados.
-- `401 Unauthorized` - Token não fornecido, inválido ou expirado.
-- `500 Internal Server Error` - Erro ao atualizar o produto.
-
----
-
-### 4. Deletar Produto
-- **Endpoint:** `DELETE /api/products/delete/:id`
-- **Descrição:** Remove um produto específico através do ID.
-- **Autenticação Obrigatória:** Sim (`Authorization: Bearer <token>`)
-
-**Respostas Possíveis:**
-- `200 OK` - Sucesso:
-  ```json
-  { "message": "Produto deletado" }
-  ```
-- `401 Unauthorized` - Token não fornecido, inválido ou expirado.
-- `500 Internal Server Error` - Erro ao deletar produto.
+Inicie o servidor:
+```bash
+npm run dev
+```
